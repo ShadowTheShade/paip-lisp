@@ -1,0 +1,109 @@
+#+title Emacs Configuration
+#+PROPERTY: header-args:lisp :tangle ./paip-lisp.lisp :mkdir p
+
+* Org Mode Configuration
+#+begin_src emacs-lisp
+  (defun efs/org-babel-tangle-paip-lisp ()
+      (when (string-equal (buffer-file-name)
+                          (expand-file-name "~/Coding/CLISP/paip-lisp/paip-lisp.org"))
+        ;; Dynamic scoping
+        (let ((org-confirm-babel-evaluate-nil))
+          (org-babel-tangle))))
+
+  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-paip-lisp)))
+#+end_src
+
+* Chapter 1
+
+#+begin_src lisp :tangle ./paip-lisp.lisp 
+  (+ 1 3)
+  (format t "hello, world~%")
+  
+  Chapter 1
+  (setf p '(John Q Small))
+
+  (setf names '((John Q Public) (Malcolm X)
+                (Admiral Grace Murray Hopper) (Spot)
+                (Aristotle) (A A Milne) (Z Z Top)
+                (Sir Larry Olivier) (Miss Scarlet)))
+
+  (defun last-name (name)
+    "Select the last name from a name represented in a list"
+    (first (last name)))
+
+  (defparameter *titles*
+    '(Mr Mrs Miss Ms Sir Madam Dr Admiral Major General)
+    "A list of titles that can appear at the start of a name")
+
+  (defun first-name (name)
+    "Select the first name from a name represented as a list"
+    (if (member (first name) *titles*)
+        (first-name (rest name))
+        (first name)))
+
+  (mapcar #'last-name names)
+  (mapcar #'first-name names)
+
+  (defparameter *titles*
+    '(Mr Mrs Miss Ms Sir Madam Dr Admiral Major General)
+    "A list of titles that can appear at the start of a name")
+
+  ;; Trace function
+  (trace first-name)
+
+  (first-name '(Madam Major General Paula Jones))
+
+  (untrace first-name)
+
+
+                                          ; Higher Order Functions
+
+  (defun mappend (fn the-list)
+    "Apply fn to each element of the list and append the result to each element"
+    (apply #'append (mapcar fn the-list)))
+
+  (defun self-and-double (x) (list x (+ x x)))
+
+  (self-and-double 3)
+
+  (mapcar #'self-and-double '(1 10 300))
+
+  (mappend #'self-and-double '(1 10 300))
+
+  (defun number-and-negation (x)
+    "If x is a number, return a list of x and -x"
+    (if (numberp x)
+        (list x (- x)
+              nil)))
+
+  (defun numbers-and-negations (input)
+    "Given a list, return only the numbers and their negations"
+    (mappend #'number-and-negation input))
+
+  ;; Updated mappend
+  (defun mappend (fn the-list)
+    "Apply fn to each element of list and append the results"
+    (if (null the-list)
+        nil
+        (append (funcall fn (first the-list))
+                (mappend fn (rest the-list)))))
+
+  ;; Anonymous functions
+
+  ((lambda (x) (+ x 2)) 4)
+
+  (funcall #'(lambda (x) (+ x 2)) 4)
+
+  ;; Examples
+  (mapcar #'(lambda (x) (+ x x)) '(1 2 3 4 5))
+
+  (mappend #'(lambda (l) (list l (reverse l))) '((1 2 3) (a b c)))
+
+#+end_src
+
+#+RESULTS:
+| 1 | 2 | 3 |
+| 3 | 2 | 1 |
+| A | B | C |
+| C | B | A |
+
