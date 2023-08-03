@@ -20,7 +20,7 @@
 
 * Chapter 1
 
-#+begin_src lisp :tangle ./paip-lisp.lisp
+#+begin_src lisp :tangle ./chapter1.lisp
       (setf p '(John Q Small))
 
       (setf names '((John Q Public) (Malcolm X)
@@ -187,9 +187,6 @@
 
 #+end_src
 
-#+RESULTS:
-: 110
-
 ** Features of Common Lisp
 - Dynamic Typing
 - First-Class Functions
@@ -201,7 +198,7 @@
 - Extensibility
 
 * Chapter 2
-#+begin_src lisp :tangle ./paip-lisp.lisp
+#+begin_src lisp :tangle ./chapter2.lisp
   ;; Chapter 2
 
   ;; 2.2 A Straightforward Solution
@@ -385,12 +382,9 @@
     (cross-product #'list xlist ylist))
 #+end_src
 
-#+RESULTS:
-: GENERATE
-
 * Chapter 3
 ** Chapter 3
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; Chapter 3 : Overview of Special Forms and Functions
 
   ;; 3.1 A Guide to Lisp Style
@@ -685,7 +679,7 @@
         unless test (return nil)
         body
   4) 
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
 
   ;; Macros
 
@@ -729,7 +723,7 @@
 
 #+end_src 
 ** Functions on lists
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.3 Functions on Lists
   (setq x '(a b c))
     (setq y '(1 2 3))
@@ -803,7 +797,7 @@ Indexing
    - (sbit simple-bit-vector n)
    - (svref simple-vector n)
 ** Functions for Maintaining Tables
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.6 Functions on Maintaining tables
   (setf state-table '((AL . Alabama) (AK . Alaska) (AZ . Arizona) (AR . Arkansas)))
 
@@ -851,7 +845,7 @@ Indexing
   (get 'state-table 'Alaska)
 #+end_src
 ** Functions on Trees
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.7 Functions on Trees
   (setf tree '((a b) ((c)) (d e)))
     (tree-equal tree (copy-tree tree))
@@ -879,7 +873,7 @@ Indexing
 
 #+end_src
 ** Functions on Numbers
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; Functions on Numbers
   (+ 4 2)
   (- 4 2)
@@ -900,7 +894,7 @@ Indexing
   (mod 11 5)
 #+end_src
 ** Functions on Sets
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.9 Functions on Sets
   ;; Use of a list to represent a set
 
@@ -918,7 +912,7 @@ Indexing
 
 #+end_src
 ** Destructive Functions
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.10 Destructive Functions 
 
   (setf x '(a b c))
@@ -1049,7 +1043,7 @@ Indexing
 
 #+end_src
 ** Input and Output
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.12 Input/Output
 
   ;; Create file test.txt and write to it
@@ -1087,7 +1081,7 @@ Strategies for debugging
    1. Run code with print statements
    2. Use a debugging program
    3. Add annotations that are not a part of the program but add the effect of automatically altering the running program
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.13 Debugging Tools
   ;; We have already seen trace and untrace
 
@@ -1116,8 +1110,7 @@ Strategies for debugging
 Consistency Checker
   - Should be used whenever a complex data structure is defined
   - Whenever an error case occurs, it should be added to the consistency checker
-  - 
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.14 Antidebugging Tools
 
   ;; error and cerror are used to signal an error condition
@@ -1187,7 +1180,7 @@ Consistency Checker
 
 #+end_src
 ** Evaluation
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.15 Evaluation
 
   (+ 1 2 3 4)
@@ -1203,7 +1196,7 @@ Consistency Checker
   (eval '(+ 1 2 3 4))
 #+end_src
 ** Closures
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.16 Closures
 
   (mapcar #'(lambda (x) (+ x x)) '(1 3 10))
@@ -1241,7 +1234,7 @@ Consistency Checker
   (funcall my-account 'withdraw 25.00)
 #+end_src
 ** Special Variables
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.17 Special Variables
 
   ;; Lexical variables vs special variables
@@ -1281,7 +1274,7 @@ Consistency Checker
   ;; => (local-a local-b local-b global-a global-b)
 #+end_src
 ** Multiple Variables
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; Multiple Values
 
   (round 5.1) ;; Returns both the rounded integer and the remaining fraction
@@ -1301,8 +1294,8 @@ Consistency Checker
 
   (list (describe 'x))
 #+end_src
-** More about Parameters
-#+begin_src lisp
+** COMMENT More about Parameters
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.19 More about Parameters
 
   ;; Example program that gives practice in arithmetic
@@ -1437,7 +1430,7 @@ Consistency Checker
       (incf len)))
 #+end_src
 ** Exercises
-#+begin_src lisp
+#+begin_src lisp :tangle ./chapter3.lisp
   ;; 3.21 Exercises
 
   ;; Exercise 3.9
@@ -1482,3 +1475,234 @@ Consistency Checker
 
 
 #+end_src
+* Chapter 4 : The General Problem Solver
+The GPS (simplified version) can be divided into five stages of development:
+   1. *Describe* the program in vague terms
+   2. *Specify* the problem in algorithmic terms
+   3. *Implement* the problem in a programming language
+   4. *Test* the program on representative examples
+   5. *Debug* and *analyze* the resulting program, and repeat the process
+** 4.1 Stage 1 : Description
+Solve problems using means-ends analysis, where the problem is stated in terms of what we want to happen.
+Some actions require solving /preconditions/ as subproblems.
+** 4.2 Stage 2 : Specification
+What we are looking for from *GPS*
+  - Represent a set of conditions using symbols
+  - Define a list of allowable operators that will be constant over the course of a problem or series of problems. We would like to make it adjustable to be able to adapt to different project domains.
+  - Represent operators and a structure composed of an action, a precondition and a list of effects. Place limits on the kinds of possible effects by saying that an effect either adds or deletes a condition from the current *state*.
+  - The list of effects can be split into an add-list and a delete-list.
+  - A complete problem is described to GPS in terms of a starting state, a goal state, and a set of known operators. We can see it as a function of three arguments
+     #+begin_src lisp :tangle ./chapter4.lisp
+       ;; Chapter 4
+       ;; 4.2 Stage 2 : Specification
+       ;;(GPS '(unknown poor) '(rich famous) list-of-ops)
+
+       ;; Function used in GPS
+       (defun find-all (item sequence
+                   &rest keyword-args
+                     &key (test #'eql) test-not &allow-other-keys)
+    "Find all the elements of a sequence that match the item, according to the keywords without altering the sequence"
+    (if test-not
+        (apply #'remove item sequence
+               :test-not (complement test-not) keyword-args)
+        (apply #'remove item sequence
+               :test (complement test) keyword-args)))
+     #+end_src
+     Starting from poor and unknown, find any means possible through the use of operators to become rich and famous.
+  - If a goal is already in the current state, it is trivially achieved. Otherwise, try to find a way to apply it through the operators.
+  - An operator is appropriate if the operator's effect helps to add the goal in question.
+  - An operator can be applied if all the preconditions are met. Once the preconditions have been acheived, applying the operator means executing the action and updating the current state in term of the operatior's add-list and delete-list
+p** 4.3 Stage 3 : Implementation
+Summary of variables, data types and functions tahat make up the GPS.
+
+| Symbol         | Use                                                 |
+|                | Top-Level Function                                  |
+| *GPS*            | Solve a goal from a state using a list of operators |
+|                | Special Variables                                   |
+| **state**        | The current state, a list of conditions             |
+| **ops**          | A list of available operators                       |
+|                | Data types                                          |
+| *op*             | An operation with preconds, add-list and del-list   |
+|                | Functions                                           |
+| *achieve*        | Achieve and individual goal                         |
+| *appropriate-p*  | Decide if an operator is appropriate for a goal     |
+| *apply-op*       | Apply operator to current state                     |
+|                | Selected Common Lisp Functions                      |
+| *member*         | Test if an element is a member of a list            |
+| *set-difference* | All elements in one of the sets but not the other   |
+| *union*          | All elements in either of the two sets              |
+| *every*          | Test if every element of a list passes a test       |
+| *some*           | Test if any element of a list passes a test         |
+|                | Previously defined functions                        |
+| *find-all*       | A list of matching elements                         |
+** 4.3 Stage 3 : Implementation
+#+begin_src lisp :tangle ./chapter4.lisp
+        ;; 4.3 Stage 3 : Implementation
+  (defvar *state* nil "The current state: a list of conditions.")
+
+  (defvar *ops* nil "A list of available operators.")
+
+  (defstruct op "An operation"
+    (action nil) (preconds nil) (add-list nil) (del-list nil))
+
+  (defun GPS (*state* goals *ops*)
+    "General Problem Solver: achieve all goals using *ops*."
+    (if (every #'achieve goals) 'solved))
+
+  (defun achieve (goal)
+    "A goal is achieved if it already holds,
+    or if there is an appropriate op for it that is applicable."
+    (or (member goal *state*)
+      (some #'apply-op
+        (find-all goal *ops* :test #'appropriate-p))))
+
+  (defun appropriate-p (goal op)
+    "An op is appropriate to a goal if it is in its add list."
+    (member goal (op-add-list op)))
+
+  (defun apply-op (op)
+    "Print a message and update *state* if op is applicable."
+    (when (every #'achieve (op-preconds op))
+      (print (list 'executing (op-action op)))
+      (setf *state* (set-difference *state* (op-del-list op)))
+      (setf *state* (union *state* (op-add-list op)))
+    t))
+
+
+  ;; Special variables that can be accessed from anywhere within the program
+
+        (defvar *state* nil "The current state: a list of conditions.")
+        (defvar *ops* nil "A list of available operators.")
+
+        (defstruct op
+          "An operation"
+          (action nil)
+          (preconds nil)
+          (add-list nil)
+          (del-list nil))
+
+        ;; Defining a structure automatically defines a constructor called make-op
+        ;; It also creates accessor functions op-action, op-preconds, op-add-list and op-del-list
+        ;; It defines a copier copy-op, a predicate op-p and setf definitions for changing each slot
+
+        ;;(defun make-op (&key action preconds add-list del-list)
+        ;;  (vector 'op action preconds add-list del-list))
+
+        ;; (defun op-action (op) (elt op 1))
+        ;; (defun op-preconds (op) (elt op 2))
+        ;; (defun op-add-list (op) (elt op 3))
+        ;; (defun op-del-list (op) (elt op 4))
+
+        ;; (defun copy-op (op (copy-seq op)))
+
+        ;; (defun op-p (op)
+        ;;   (and (vectorp op) (eq (elt op 0) 'op)))
+#+end_src
+** 4.4 Stage 4 : Test
+Example using taking a kid to school
+#+begin_src lisp :tangle ./chapter4.lisp
+  ;; Stage 4 : Test
+
+  (make-op :action 'drive-son-to-school
+           :preconds '(son-at-home car-works)
+           :add-list '(son-at-school)
+           :del-list '(son-at-home))
+
+  (defparameter *school-ops*
+    (list
+      (make-op :action 'drive-son-to-school
+               :preconds '(son-at-home car-works)
+               :add-list '(son-at-school)
+               :del-list '(son-at-home))
+      (make-op :action 'shop-installs-battery
+               :preconds '(car-needs-battery shop-knows-problem shop-has-money)
+               :add-list '(car-works))
+      (make-op :action 'tell-shop-problem
+               :preconds '(in-communication-with-shop)
+               :add-list '(shop-knows-problem))
+      (make-op :action 'telephone-shop
+               :preconds '(know-phone-number)
+               :add-list '(in-communication-with-shop))
+      (make-op :action 'look-up-number
+               :preconds '(have-phone-book)
+               :add-list '(know-phone-number))
+      (make-op :action 'give-shop-money
+               :preconds '(have-money)
+               :add-list '(shop-has-money)
+               :del-list '(have-money))))
+
+  (gps '(son-at-home car-needs-battery have-money have-phone-book)
+       '(son-at-school)
+       ,*school-ops*) ;; => Solved
+
+  (gps '(son-at-home car-needs-battery have-money)
+       '(son-at-school)
+       ,*school-ops*) ;; => nil
+
+  (gps '(son-at-home car-works)
+       '(son-at-school)
+       ,*school-ops*) ;; => Solved
+#+end_src
+** 4.5 Stage 5 : Analysis
+This version of the GPS has limitations.
+In the following sections, the code will be elaborated upon / changed to fit other needs.
+** 4.6 Stage 6 : The Running around the Block Problem
+Consider a new goal of running around the block. There is no change in location, so what do we provide for add and delete lists?
+This question will touched upon later.
+** 4.7 The Clobbered Sibling Problem
+Not only do we have to get our child to school, but now we need to ensure we have enough money for the rest of the day.
+Now, needing to purchase a battery for our car poses a problem for us. The gps reports the following as being successful, when it should not be in this case:
+#+begin_src lisp :tangle ./chapter4.lisp
+  ;; 4.7 The Clobbered Sibling Problem
+  ;; The following situation should now have no solution, since we need to keep extra money for the day/
+    (gps '(son-at-home car-needs-battery have-money have-phone-book)
+         '(have-money son-at-school)
+         ,*school-ops*)
+#+end_src
+We want to end up in a state where both son-at-school and have-money are true.
+The GPS interprets this as first, achieve have-money, and then achieve son-at-school, when in reality the final state should include both.
+Change the definition of achieve-all
+#+begin_src lisp :tangle ./chapter4.lisp
+  ;; Ensure achieve all asks for all conditions to be met at the same time
+  ;; Returns true if we can acheive each goal and if the goal is a subset of the final state
+  (defun achieve-all (goals)
+    "Try to achieve each goal all together"
+    (and (every #'achieve goals) (subsetp goals *state*)))
+
+  (defun GPS (*state* goals *ops*)
+    "General Problem Solver: achieve all goals using *ops*."
+    (if (achieve-all goals) 'solved))
+#+end_src
+Now we impose a stronger condition on acheive-all, where the final state must include all of the conditions to be met.
+** 4.8 The Leaping Before You Look Problem
+Another way to solve the all conditions must be met problem is to order them in a different manner.
+#+begin_src lisp :tangle ./chapter4.lisp
+    ;; 4.8 The Leaping Before You Look Problem
+  (gps '(son-at-home car-needs-battery have-money have-phone-book)
+      '(son-at-school have-money)
+      ,*school-ops*)
+#+end_src
+This method changes the state irreversibly before moving on to solve the next goal
+** 4.9 The Recursive Subgoal Problem
+Suppose we wanted to add a way to find out a phone number.
+Here we must be in contact with someone in order to receive a phone number.
+#+begin_src lisp :tangle ./chapter4.lisp
+  ;; 4.9 The Recursive Subgoal Problem
+  ;; Add operation that requires you to be in communication with someone from the shop in order to get a phone number
+  (push (make-op :action 'ask-phone-number
+                 :preconds '(in-communication-with-shop)
+                 :add-list '(know-phone-number))
+        ,*school-ops*)
+
+  ;; This raises an error since the recursion depth is too large. 
+  (gps '(son-at-home car-needs-battery have-money)
+       '(son-at-school)
+       ,*school-ops*)
+
+  ;; Tracing acheive may give us insight into the problem
+  (trace achieve)
+#+end_src
+Here there is an oscillation between in-communication-with-shop and know-phone-number.
+We want to get in communication with the shop. One method is through the phone, but we don't have a phone book, so we need to get in communication to get the phone number and so on..
+** 4.10 The Lack of Intermediate Information Problem
+
