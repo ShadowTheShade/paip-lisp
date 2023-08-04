@@ -1705,4 +1705,9 @@ Here we must be in contact with someone in order to receive a phone number.
 Here there is an oscillation between in-communication-with-shop and know-phone-number.
 We want to get in communication with the shop. One method is through the phone, but we don't have a phone book, so we need to get in communication to get the phone number and so on..
 ** 4.10 The Lack of Intermediate Information Problem
+Currently, when the GPS cannot return a valid solution it only returns *nil*.
+
+#+begin_src lisp :tangle ./chapter4.lisp
+;;
+#+end_src
 
