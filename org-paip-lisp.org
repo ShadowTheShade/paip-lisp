@@ -1706,8 +1706,73 @@ Here there is an oscillation between in-communication-with-shop and know-phone-n
 We want to get in communication with the shop. One method is through the phone, but we don't have a phone book, so we need to get in communication to get the phone number and so on..
 ** 4.10 The Lack of Intermediate Information Problem
 Currently, when the GPS cannot return a valid solution it only returns *nil*.
-
+The *dbg* function prints output the same way as *format* but it will only print when we want to output debugging information.
+Each call to *dbg* is accompanied by an identifier that is used to specify a class of debugging messages.
 #+begin_src lisp :tangle ./chapter4.lisp
-;;
-#+end_src
+                                          ; 4.10 The Lack of Intermediate Information Problem
 
+  ;; Sample format for dbg :identifier -> message 
+  (dbg :gps "The current goal is: ~a" goal)
+
+  ;; If debugging is turned on for the identifier :gps, then any calls to dbg with :gps will print output
+  (debug :gps)
+  (undebug :gps) ;; Turns off debugging
+
+  ;; *debug-io* is the stream normally used for debugging input / output
+
+  ;; fresh-line advances to the next line of output, unless it is already there
+
+  (defvar *ddb-ids* nil "Identifiers used by dbg")
+
+  (defun dbg (id format-string &rest args)
+    "Print debugging info if (DEBUG ID) has been specified."
+    (when (member id *dbg-ids*)
+      (fresh-line *debug-io*)
+      (apply #'format *debug-io* format-string args)))
+
+  (defun debug (&rest ids)
+    "Start dbg output on the given ids."
+    (setf *dbg-ids* (union ids *dbg-ids*)))
+
+  (defun undebug (&rest ids)
+   "Stop dbg on the ids. With no ids, stop dbg altogether."
+   (setf *dbg-ids* (if (null ids) nil
+                       (set-difference *dbg-ids* ids))))
+
+  ;; prints debug information with indentation
+
+  (defun dbg-indent (id indent format-string &rest args)
+    "Print indented debugging info if (DEBUG ID) has been specified."
+    (when (member id *dbg-ids*)
+      (fresh-line *debug-io*)
+      (dotimes (i indent) (princ " " *debug-io*))
+      (apply #'format *debug-io* format-string args)))
+#+end_src
+** 4.11 GPS Version 2 : A More General Problem Solver
+A more rigorous GPS that attempts to deal with:
+  - *running around the block* problem
+  - *prerequisite clobbers sibling goal* problem
+  - *leaping before you look* problem
+  - *recursive subgoal* problem
+    
+  Glossary
+| Symbol        | Use                                                   |
+|               | *Top-Level Funtion*                                     |
+| *GPS*           | Solve a goal from a state using a list of operators   |
+|               | *Special variables*                                     |
+| *ops*           | A list of available operators                         |
+|               | *Data Types*                                            |
+| *op*            | An operation with preconds, add-list and del-list     |
+|               | *Major Function*                                        |
+| *achieve-all*   | Achieve a list of goals                               |
+| *achieve*       | Achieve an individual goal                            |
+| *appropriate-p* | Decide if an operator is appropriate for a goal       |
+| *apply-op*      | Apply operator to current state                       |
+|               | *Auxilary Functions*                                    |
+| *executing-p*   | Is a condition an /executing/ form?                     |
+| *starts-with*   | Is the argument a list that starts with a given atom? |
+| *convert-op*    | Convert an operator to use the /executing/ convention   |
+| *op*            | Create an operator                                    |
+| *member-equal*  | Test if an element is equal to a member of a list     |
+|               | *Select Common Lisp Functions*                          |
+|               |                                                       |
