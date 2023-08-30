@@ -1,23 +1,5 @@
 #+title Emacs Configuration
 #+PROPERTY: header-args:lisp :tangle ./paip-lisp.lisp :mkdir
-
-* Org Mode Configuration
-#+begin_src emacs-lisp
-    (defun efs/org-babel-tangle-paip-lisp ()
-        (when (string-equal (buffer-file-name)
-                            (expand-file-name "~/Coding/CLISP/paip-lisp/org-paip-lisp.org"))
-          ;; Dynamic scoping
-          (let ((org-confirm-babel-evaluate-nil))
-            (org-babel-tangle))))
-
-    (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-paip-lisp)))
-
-    (setq org-src-tab-acts-natively t)
-
-  (modify-syntax-entry ?< ".")
-  (modify-syntax-entry ?> ".")
-#+end_src
-
 * Chapter 1
 
 #+begin_src lisp :tangle ./chapter1.lisp
@@ -1756,23 +1738,146 @@ A more rigorous GPS that attempts to deal with:
   - *recursive subgoal* problem
     
   Glossary
-| Symbol        | Use                                                   |
-|               | *Top-Level Funtion*                                     |
-| *GPS*           | Solve a goal from a state using a list of operators   |
-|               | *Special variables*                                     |
-| *ops*           | A list of available operators                         |
-|               | *Data Types*                                            |
-| *op*            | An operation with preconds, add-list and del-list     |
-|               | *Major Function*                                        |
-| *achieve-all*   | Achieve a list of goals                               |
-| *achieve*       | Achieve an individual goal                            |
-| *appropriate-p* | Decide if an operator is appropriate for a goal       |
-| *apply-op*      | Apply operator to current state                       |
-|               | *Auxilary Functions*                                    |
-| *executing-p*   | Is a condition an /executing/ form?                     |
-| *starts-with*   | Is the argument a list that starts with a given atom? |
-| *convert-op*    | Convert an operator to use the /executing/ convention   |
-| *op*            | Create an operator                                    |
-| *member-equal*  | Test if an element is equal to a member of a list     |
-|               | *Select Common Lisp Functions*                          |
-|               |                                                       |
+| Symbol         | Use                                                   |
+|                | *Top-Level Funtion*                                     |
+| *GPS*            | Solve a goal from a state using a list of operators.  |
+|                | *Special variables*                                     |
+| *ops*            | A list of available operators.                        |
+|                | *Data Types*                                            |
+| *op*             | An operation with preconds, add-list and del-list.    |
+|                | *Major Function*                                        |
+| *achieve-all*    | Achieve a list of goals.                              |
+| *achieve*        | Achieve an individual goal.                           |
+| *appropriate-p*  | Decide if an operator is appropriate for a goal.      |
+| *apply-op*       | Apply operator to current state.                      |
+|                | *Auxilary Functions*                                    |
+| *executing-p*    | Is a condition an /executing/ form?                     |
+| *starts-with*    | Is the argument a list that starts with a given atom? |
+| *convert-op*     | Convert an operator to use the /executing/ convention.  |
+| *op*             | Create an operator.                                   |
+| *member-equal*   | Test if an element is equal to a member of a list.    |
+|                | *Select Common Lisp Functions*                          |
+| *member*         | Test if a member is an element of a list.             |
+| *set-difference* | All elements in one set but not the other.            |
+| *subsetp*        | Is one set contained in another?                      |
+| *union*          | All elements in either of the two sets.               |
+| *every*          | Test if every element of a list passes a test.        |
+| *some*           | Test of any element of a list passes a test.          |
+| *remove-if*      | Remove all items satisfying a test.                   |
+|                | *Previously Defined Functions*                          |
+| *find-all*       | A list of all matching elements.                      |
+| *find-all-if*    | A list of all elements satisfying a predicate.        |
+
+Instead of printing a message when each operator is applied, we have GPS return the resulting state.
+#+begin_src lisp :tangle ./chapter4.lisp
+  ;; 4.11 GPS Version 2 : A More General Problem Solver
+
+  (defun executing-p (x)
+    "Is x of the form: (executing ...) ?"
+    (starts-with x 'executing))
+
+  (defun start-with (list x)
+    "Is this a list whose first element is x?"
+    (and (consp list) (eql (first list) x)))
+
+  (defun convert-op (op)
+    "Make op confirm to the (EXECUTING op) convention."
+    (unless (some #'executing-p (op-add-list op))
+      (push (list 'executing (op-action op)) (op-add-list op)))
+    op)
+
+  (defun op (action &key preconds add-list del-list)
+    "Make a new operator that obeys the (EXECUTING op) convention."
+    (convert-op
+     (make-op :action action :preconds preconds
+              :add-list add-list :del-list del-list)))
+
+  ;; We can convert existing operators using convert-op
+  (mapc #'convert-op *school-ops*)
+
+  ;; GPS no longer returns solved when done, but a sequence of actions
+  (defvar *ops* nil "A list of available operators.")
+
+  (defstruct op "An operation"
+             (action nil) (preconds nil) (add-list nil) (del-list nil))
+
+  (defun GPS (state goals &optional (*ops* *ops*))
+    "General Problem Solver: from state, achieve goals using *ops*."
+    (remove-if #'atom (achieve-all (cons '(start) state) goals nil)))
+
+  ;; No more global state variable ; solves the 'leap before you look problem'
+  ;; The program keeps track of the local state variables now
+  ;; achieve, achieve-all and apply-op all take an extra argument for the current state and return the new stated
+
+#+end_src
+There is now a potential ambiguity between a state with no conditions or a failure. Thus we force all states to have a condition. This is enforced by *GPS*.
+
+Previously: (achieve-all state goals nil)
+Now: (achieve-all (cons '(start) state) goals nil)
+Even if the user passes in a null state, start is included by default.
+The only funciton that builds a new state is *apply-op*.
+Three steps for avoiding errors:
+   1. Decide if nil could ever be a meaningful value
+   2. Insure that the /user/ cannot corrupt the program by supplying a *nil* value to it.
+   3. Insure that the /program/ cannot supply nil as a value
+Solutions provided by version 2 include making *GPS* the only function the user can call, so we know waht to account for when designing it, and we ensured that there were no places in the program where new states were constructed, but made by appending a one-element list onto another state.
+In this version, the program keeps track of the goals it is working on and fails if a goal appears as a subgoal of itself. This test is made in the second clause of *achieve*.
+*achieve-all* atempts to achieve each goal in turn and uses the return value of the previous achieve as the state of the next call.
+#+begin_src lisp :tangle ./chapter4.lisp
+  (defun achieve-all (state goal goal-stack)
+    "Achieve each goal, and make sure they still hold at the end."
+    (let ((current-state state))
+      (if (and (every #'(lambda (g)
+                          (setf current-state
+                                (achieve current-state g goal-stack)))
+                      goals)
+               (subsetp goals current-state :test #'equal))
+          current-state)))
+
+  (defun achieve (state goal goal-stack)
+    "A goal is achieved if it already holds, or if there is an appropriate op for it that is applicable."
+    (dbg-indent :gps (length goal-stack) "Goal: ~a" goal)
+    (cond ((member-equal goal state) state)
+          ((member-equal goal goal-stack) nil)
+          (t (some #'(lambda (op) (apply-op state goal op goal-stack))
+                   (find-all goal *ops* :test #'appropriate-p)))))
+
+
+  ;; eql tests literal equality, while equal tests 'look-alike' equality
+  (defun member-equal (item list)
+    (member item list :test #'equal))
+  
+
+#+end_src
+
+The function *apply-op* which is used to change the state irrevocably and print a message now returns the nee state instead of printing anything. First it computes the state that would result from achieveing all of the preconditions of the operator, and if it is possible to achieve such a state then *apply-op* returns the new state derived by adding and removing from the /add-list/ and /delete-list/.
+
+#+begin_src lisp :tangle ./chapter4.lisp
+  (defun apply-op (state goal op goal-stack)
+    "Return a new, transformed state if op is applicable."
+    (dbg-indent :gps (length goal-stack) "Consider: ~a" (op-action op))
+    (let ((state2 (achieve-all state (op-preconds op)
+                               (cons goal goal-stack))))
+      (unless (null state2)
+        ;; Return an updated state
+        (dgb-indent :gps (length goal-stack) "Action: ~a" (op-action op))
+        (append (remove-if #'(lambda (x)
+                               (member-equal x (op-del-list op)))
+                           state2)
+                (op-add-list op)))))
+
+  (defun appropriate-p (goal op)
+    "An op is appropriate to a goal if it is in its add-list."
+    (member-equal goal (op-add-list op)))
+
+  ;; Function to be used as a declaration that a given list of operators is to be used for a series of problems
+  (defun use (oplist)
+    "Use oplist as the default list of operators."
+    ;; Return something useful, but not too verbose
+    ;; the number of operators
+    (length (setf *ops* oplist)))
+#+end_src
+
+In version 1, states were essentially unordered sets so *union* and *set-difference* sufficed. In version 2, states are ordered list and thus preserving the order of actions becomes important. Here we need to use *append* and *remove-if* since they are defined to preserve order.
+
+Calling *use* sets the parameter **ops**, so it need not be specified to each call to GPS. In the new definition of *gps*, **ops** is 
